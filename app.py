@@ -1,19 +1,24 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+
 st.set_page_config(page_title="Ola Rides Dashboard", layout="wide")
+
 @st.cache_data
 def get_data():
-df = pd.read_csv("OLA_DataSet.csv")
-numeric_cols = ['Booking_Value', 'Ride_Distance', 'Driver_Ratings', 'Customer_Rating', 'V_TAT', 'C_TAT']
-for col in numeric_cols:
-if col in df.columns:
-df[col] = pd.to_numeric(df[col], errors='coerce')
-if 'Date' in df.columns:
-df['Date'] = pd.to_datetime(df['Date'], errors='coerce')
-return df
+    df = pd.read_csv("OLA_DataSet.csv")
+    
+    numeric_cols = ['Booking_Value', 'Ride_Distance', 'Driver_Ratings', 'Customer_Rating', 'V_TAT', 'C_TAT']
+    for col in numeric_cols:
+        if col in df.columns:
+            df[col] = pd.to_numeric(df[col], errors='coerce')
+    
+    if 'Date' in df.columns:
+        df['Date'] = pd.to_datetime(df['Date'], errors='coerce')
+    
+    return df
+
 st.title("Ola Rides Analysis 🚗")
-# Load data
 df = get_data()
    
 # ========== EDA SECTION ==========
