@@ -101,7 +101,7 @@ def convert_df_to_sql(df):
             elif isinstance(val, (int, float)):
                 values.append(str(val))
             else:
-                values.append(f"'{str(val).replace(''', '''')}'")
+                values.append(f'{str(val).replace('"', "''")}')
         
         sql_lines.append(f"INSERT INTO ola_rides VALUES ({', '.join(values)});")
     
