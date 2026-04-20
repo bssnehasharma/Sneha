@@ -72,3 +72,46 @@ if 'Date' in df.columns:
     st.subheader("6. Trends Over Time")
     daily_rides = df.groupby(df['Date'].dt.date).size()
     st.line_chart(daily_rides)
+
+# ========== SQL DOWNLOAD ==========
+st.divider()
+st.header("Download Data as SQL")
+
+@st.cache_data
+def convert_df_to_sql(df):
+    sql_lines = ["-- Ola Rides Data", "CREATE TABLE ola_rides ("]
+    
+    # Create table schema from dataframe
+    for col in df.columns:
+        if pd.api.types.is_numeric_dtype(df[col]):
+            sql_lines.append(f" {col} NUMERIC,")
+        else:
+            sql_lines.append(f" {col} TEXT,")
+    
+    sql_lines[-1] = sql_lines[-1].rstrip(',') # remove last comma
+    sql_lines.append(");")
+    sql_lines.append("")
+    
+    # Add INSERT statements - limit to 1000 rows so file isn't huge
+    for i, row in df.head(1000).iterrows():
+        values = []
+        for val in row:
+            if pd.isna(val):
+                values.append("NULL")
+            elif isinstance(val, (int, float)):
+                values.append(str(val))
+            else:
+                values.append(f"'{str(val).replace(''', '''')}'")
+        
+        sql_lines.append(f"INSERT INTO ola_rides VALUES ({', '.join(values)});")
+    
+    return "\n".join(sql_lines)
+
+sql_file = convert_df_to_sql(df)
+st.download_button(
+    label="Download SQL file",
+    data=sql_file,
+    file_name="ola_rides.sql",
+    mime="text/sql"
+)
+st.caption("Downloads first 1000 rows to keep file size small")
